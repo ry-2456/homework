@@ -5,6 +5,7 @@ import time
 import numpy as np
 
 from Data import Data
+from neural_network import MiddleLayer, OutputLayer
 
 def print_chars(char_data):
     """文字データの表示"""
@@ -31,13 +32,9 @@ if __name__ == "__main__":
 
     # データの読み込み
     data_train_0 = Data(data_dir="Data", writer=0, is_train=True)
-    data_test_0 = Data(data_dir="Data", writer=0, is_train=False)
+    data_test_0  = Data(data_dir="Data", writer=0, is_train=False)
     data_train_1 = Data(data_dir="Data", writer=1, is_train=True)
-    data_test_1 = Data(data_dir="Data", writer=1, is_train=False)
+    data_test_1  = Data(data_dir="Data", writer=1, is_train=False)
 
-    print(data_train_0)
-    print(data_test_0)
-    print(data_train_1)
-    print(data_test_1)
     end = time.time()
     print(end - start)
