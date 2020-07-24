@@ -5,19 +5,26 @@ class BaseLayer:
     def __init__(self, n_upper, n, eta, alpha):
         """ n_upper: 上の層のニューロン数
             n      : この層のニューロン数 """
-        self.w = np.random.randn(n_upper, n) * np.sqrt(n_upper) # 重み(Xavier)
-        self.b = np.zeros(n)                                    # バイアス
+        self.w = np.random.randn(n_upper, n) * 1/np.sqrt(n_upper) # 重み(Xavier)
+        self.b = np.zeros(n)                                      # バイアス
 
-        self.eta = eta                                          # 学習係数
-        self.alpha = alpha                                      # 安定化係数
+        self.eta = eta                                            # 学習係数
+        self.alpha = alpha                                        # 安定化係数
 
-        self.prev_grad_w = np.zeros((n_upper, n))               # 前回のwの更新量
-        self.prev_grad_b = np.zeros(n)                          # 前回のbの更新量
+        self.prev_update_amt_w = np.zeros((n_upper, n))           # 前回のwの更新量
+        self.prev_update_amt_b = np.zeros(n)                      # 前回のbの更新量
     
     def update(self):
         """momentum"""
-        self.w -= (self.eta * self.grad_w + self.alpha * self.prev_grad_w)
-        self.b -= (slef.eta * self.grad_b + slef.alpha * self.prev_grad_b)
+        # 更新量の計算
+        update_amt_w = self.eta * self.grad_w + self.alpha * self.prev_update_amt_w 
+        update_amt_b = self.eta * self.grad_b + self.alpha * self.prev_update_amt_b
+
+        self.w -= update_amt_w
+        self.b -= update_amt_b
+
+        self.prev_update_amt_w = update_amt_w
+        self.prev_update_amt_b = update_amt_b
 
 
 class MiddleLayer(BaseLayer):
