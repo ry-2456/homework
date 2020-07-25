@@ -5,7 +5,7 @@ class BaseLayer:
     def __init__(self, n_upper, n, eta, alpha):
         """ n_upper: 上の層のニューロン数
             n      : この層のニューロン数 """
-        self.w = np.random.randn(n_upper, n) * 1/np.sqrt(n_upper) # 重み(Xavier)
+        self.w = np.random.randn(n_upper, n) / np.sqrt(n_upper) # 重み(Xavier)
         self.b = np.zeros(n)                                      # バイアス
 
         self.eta = eta                                            # 学習係数
@@ -32,7 +32,7 @@ class MiddleLayer(BaseLayer):
     def forward_prop(self, x):
         """sigmodi関数を使用"""
         self.x = x
-        self.u = np.dot(x, self.w) + self.b
+        u = np.dot(x, self.w) + self.b
         self.y = 1 / (1 + np.exp(-u)) # sigmoid
 
     def back_prop(self, grad_y):

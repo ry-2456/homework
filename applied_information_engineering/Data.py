@@ -27,40 +27,41 @@ class Data:
         """データから特徴量を抽出する
         step : 特徴量抽出領域の大きさ
         """
-        char_data = self._read_data() # key:0~19 val:100x64x64(numpy.array)
-        mesh_featuer_list = []
+
+        char_data = self.char_data
+        n, row, col = char_data.shape     
+
+        # メッシュ特徴量格納用(2000, 8, 8)
+        mesh_feature = np.zeros((n, int(row/step), int(col/step)))
 
         # 特徴量の計算
-        for i in range(len(Data.chars)):
+        for i in range(row//step):
+            for j in range(col//step):
+                mesh_feature[:,i,j] = np.sum(
+                    char_data[:, i*step:(i+1)*step, j*step:(j+1)*step], axis=(1,2)) / float(step**2)
 
-            chars = char_data[i] 
-            n, row, col = chars.shape # 100x64x64
-
-            for j in range(n):
-                c = chars[j]
-                mesh_f = np.zeros((step, step))
-                for k in range(step):
-                    for l in range(step):
-                        mesh_f[k, l] = np.sum(c[k*step:(k+1)*step, l*step:(l+1)*step]) / float(step ** 2)
-                mesh_featuer_list.append(mesh_f)
-
-        return mesh_featuer_list
+        return mesh_feature.reshape(n, -1) # 2000x64
 
     def _read_data(self):
         """ 手書き文字のデータを読み込む"""
-        char_data = {}
+
+        # データ格納用
+        char_data = []
         for i in range(len(Data.chars)):
 
+            # 読み込むファイルの名前
             f_name = "hira{}_{:02d}{}.dat".format(self.writer, i, "L" if self.is_train else "T")
 
-            # with open(self.data_dir + os.sep + f_name) as f:
             with open(os.path.join(self.data_dir, f_name)) as f:
-                # data[Data.chars[i]] = np.array([[int(c) for c in l] for l in f.read().strip().split('\n')], dtype="uint8")
-                c = np.array([[int(c) for c in l] for l in f.read().strip().split('\n')], dtype="uint8") # shape:6400 x 64
-                h, w = c.shape
-                char_data[i] = c.reshape(int(h/w), w, w)
 
-        return char_data  # key:0~19 val:np.array: 100x64x64 
+                # 2次元のint配列に変換(shape: 6400x64)
+                c = np.array([[int(c) for c in l] 
+                    for l in f.read().strip().split('\n')], dtype="uint8")
+
+                h, w = c.shape                              # 6400x64
+                char_data.append(c.reshape(int(h/w), w, w)) # 10x64x64
+
+        return np.concatenate(char_data, 0)  # 2000x64x64
 
     def __str__(self):
         return "Data_type: writer_{} {}".format(self.writer, "Train" if self.is_train else "Test")
