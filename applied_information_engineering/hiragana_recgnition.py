@@ -24,6 +24,19 @@ def show_chars(chars, labels):
     for c, l in zip(chars, labels):
         show_char(c, l)
 
+def show_graph(train_error_x, train_error_y, test_error_x, test_error_y,  train_label, test_labels):
+    # グラフの表示
+    plt.plot(train_error_x, train_error_y, label=train_label) # 学習データのplot
+    for i in range(len(test_error_y)):                    # テストデータのplot
+        plt.plot(test_error_x, test_error_y[i], label=test_labels[i])
+
+    plt.legend()
+
+    plt.xlabel("Epoch")
+    plt.ylabel("Error")
+
+    plt.show()
+
 def main_2(input_train, input_test, correct_train_orig, correct_test_orig, train_data_name, test_data_name):
     # input_train, correct_train: numpy.array
     # input_test, correct_test: list 要素はnumpy.arary
@@ -78,10 +91,13 @@ def main_2(input_train, input_test, correct_train_orig, correct_test_orig, train
         # 学習経過
         if i % interval == 0:
             print("Epoch: {}".format(i))
+
+            # クロスエントロピー誤差表示
             print("Error_train({}): {}".format(train_data_name, error_train))
             for j in range(len(input_test)):
                 print("Error_test({}): {}".format(test_data_name[j], error_test[j]))
-
+            
+            # 正答率表示
             print("Accuracy_train({}): {}".format(
                 train_data_name, net.accuracy(input_train, correct_train)))
             for j in range(len(input_test)):
@@ -104,17 +120,10 @@ def main_2(input_train, input_test, correct_train_orig, correct_test_orig, train
             net.update_wb()            # 重みとバイアスの更新
 
     # グラフの表示
-    plt.plot(train_error_x, train_error_y, label="train")
-    for i in range(len(input_test)):
-        print(len(test_error_y[i]))
-        plt.plot(test_error_x, test_error_y[i], label="test_" + str(i))
+    show_graph(train_error_x, train_error_y, 
+               test_error_x, test_error_y,  
+               train_data_name, test_data_name)
 
-    plt.legend()
-
-    plt.xlabel("Epoch")
-    plt.ylabel("Error")
-
-    plt.show()
 
     # 画像で確認
     net.forward_prop(input_test)
