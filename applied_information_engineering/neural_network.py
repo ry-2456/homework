@@ -93,3 +93,7 @@ class NeuralNetwork:
 
         cnt_correct = np.sum(np.argmax(self.output_layer.y, axis=1) == np.argmax(correct, axis=1))
         return cnt_correct / input_.shape[0] * 100
+
+    @property
+    def output(self):
+        return self.output_layer.y
