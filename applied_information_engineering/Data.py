@@ -64,5 +64,5 @@ class Data:
         return np.concatenate(char_data, 0)  # 2000x64x64
 
     def __str__(self):
-        return "Data_type: writer_{} {}".format(self.writer, "Train" if self.is_train else "Test")
+        return "writer_{} {}".format(self.writer, "Train" if self.is_train else "Test")
 
