@@ -8,7 +8,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from config import *
-
 from Data import Data
 from neural_network import MiddleLayer, OutputLayer, NeuralNetwork
 
@@ -32,18 +31,23 @@ def make_dir(path):
     else:
         print("{} already exists".format(path))
 
-def error_graph(train_error_x, train_error_y, test_error_x, test_error_y,  train_label, test_labels):
+def save_error_graph(train_error_x, train_error_y, test_error_x, test_error_y,  
+                train_label, test_labels, full_path):
     # グラフの表示
-    plt.plot(train_error_x, train_error_y, label=train_label) # 学習データのplot
+    fig = plt.figure(figsize=(5, 4))
+    ax = fig.add_subplot(111)
+
+    ax.plot(train_error_x, train_error_y, label=train_label) # 学習データのplot
     for i in range(len(test_error_y)):                    # テストデータのplot
-        plt.plot(test_error_x, test_error_y[i], label=test_labels[i])
+        ax.plot(test_error_x, test_error_y[i], label=test_labels[i])
+
+    ax.set_xlabel("Epoch")
+    ax.set_ylabel("Error")
 
     plt.legend()
 
-    plt.xlabel("Epoch")
-    plt.ylabel("Error")
+    fig.savefig(full_path)
 
-    plt.show()
 
 def main(input_train, input_test, correct_train_orig, correct_test_orig, train_data_name, test_data_name):
     # input_train, correct_train: numpy.array
@@ -128,11 +132,19 @@ def main(input_train, input_test, correct_train_orig, correct_test_orig, train_d
             net.update_wb()            # 重みとバイアスの更新
 
 
+    # 結果の保存
+    make_dir(os.getcwd() + os.sep + "result")
+    graph_name = os.path.join(os.getcwd(), "result", "error.png")
+    save_error_graph(train_error_x, train_error_y, 
+                test_error_x, test_error_y,  
+                train_data_name, test_data_name, graph_name)
+
+    # グラフの表示
     if show_error_graph:
-        # グラフの表示
-        error_graph(train_error_x, train_error_y, 
-                    test_error_x, test_error_y,  
-                    train_data_name, test_data_name)
+        img = cv2.imread(graph_name)
+        cv2.imshow(graph_name.split("/")[-1], img)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
 
     # 正答率をファイルに書き込む

@@ -9,6 +9,6 @@ epoch = 101    # エポック数
 batch_size = 8  # バッチサイズ(ミニバッチ学習を行う)
 interval = 5  # 学習状態の表示間隔
 
-show_error_graph = True
-write_accuracy = True
-write_output = True
+show_error_graph = 0
+write_accuracy = 0
+write_output = 0
