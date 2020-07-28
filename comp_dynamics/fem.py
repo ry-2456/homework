@@ -3,17 +3,13 @@ import sys
 import numpy as np
 import matplotlib.pyplot as plt
 
+from config import *
+
 try:
     import cv2
     show_img = True
 except ImportError as e:
     show_img = False
-
-load_k = True # K matrixを読むこむかどうか
-save_k = True # K matrixを保存するかどうか
-
-load_u = True # 変位uを読み込むかどうか
-save_u = True # 変位uを保存するかどうか
 
 def read_fem_data(file_name):
     """データを読み込む""" 
@@ -22,8 +18,9 @@ def read_fem_data(file_name):
         node_n = int(f.readline().split()[0]) # 節点数
         elem_n = int(f.readline().split()[0]) # 要素数
 
-        nodes = np.zeros((node_n+1, 2), dtype="float128") # 一行目はダミー
-        elems = np.zeros((elem_n+1, 3), dtype="int16")    # 一行目はダミー
+        # nodes = np.zeros((node_n+1, 2), dtype="float128") # 一行目はダミー
+        nodes = np.zeros((node_n+1, 2))                # 一行目はダミー
+        elems = np.zeros((elem_n+1, 3), dtype="int16") # 一行目はダミー
 
         # ノード物理量の読み込み
         for i in range(node_n):
@@ -218,16 +215,6 @@ def save_result(elems, x_coords, y_coords, colors, f_name):
 
 
 if __name__ == "__main__":
-    ############# 各値の設定 ##############
-    POISSON = 0.3       # ポアソン比
-    T = 1e-3            # 厚さ
-    E = 203e9           # ヤング率
-    F_X = 0             # x方向荷重
-    F_Y = -1e4          # y方向荷重
-    LOAD_POINT_X = 1    # 荷重点のx座標
-    FIXED_X = -1        # 固定端のx座標
-    DATA_FILE_NAME = "FEM_Data.dat" # データのファイル名
-    #######################################
 
     # ファイルの読み込み
     n_node, n_elem, nodes, elems = read_fem_data(DATA_FILE_NAME)
