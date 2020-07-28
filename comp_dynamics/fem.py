@@ -9,11 +9,11 @@ try:
 except ImportError as e:
     show_img = False
 
-load_k = False # K matrixを読むこむかどうか
-save_k = False # K matrixを保存するかどうか
+load_k = True # K matrixを読むこむかどうか
+save_k = True # K matrixを保存するかどうか
 
-load_u = False # 変位uを読み込むかどうか
-save_u = False # 変位uを保存するかどうか
+load_u = True # 変位uを読み込むかどうか
+save_u = True # 変位uを保存するかどうか
 
 def read_fem_data(file_name):
     """データを読み込む""" 
@@ -171,12 +171,13 @@ def force_vector(nodes, n_node, load_x, f_x, f_y):
     
     return f
 
-def set_dirichlet_boundary(K, fixed_x):
+def set_dirichlet_boundary(K, fixed_x, nodes):
     """
     ディリクレ境界条件を設定する
     -----------------------------
     K       : 全体剛性マトリクス
     fixed_x : 固定端のx座標
+    nodes   : 全節点(1行目はダミー)
     """
     # 固定端の節点番号
     fixed_idx = np.where(nodes[:, 0]==fixed_x)[0]
@@ -203,7 +204,7 @@ def save_result(elems, x_coords, y_coords, colors, f_name):
     colors    : グラフの色リスト
     f_name    : 保存する画像の名前 
     """
-    fig = plt.figure(figsize=(10, 8)) # 横幅, 立幅
+    fig = plt.figure(figsize=(7.5, 6)) # 横幅, 立幅
     ax = fig.add_subplot(111)         # 行数, 列数, それらのどこに配置するか
 
     # メッシュを描く
@@ -211,10 +212,9 @@ def save_result(elems, x_coords, y_coords, colors, f_name):
 
         # 三角形の節点idxを取得
         triangle_idx = elems[1:,[0,1,2,0]].reshape(-1) 
-        # x, yから座標を取り出す
         ax.plot(x[triangle_idx-1], y[triangle_idx-1], color=color, lw=0.2)
 
-    fig.savefig(f_name)
+    fig.savefig("{}".format(f_name))
 
 
 if __name__ == "__main__":
@@ -233,19 +233,19 @@ if __name__ == "__main__":
     n_node, n_elem, nodes, elems = read_fem_data(DATA_FILE_NAME)
 
     # 要素ごとに必要な値を求める
-    k_elem_mat_list = [] # 要素剛性マトリクスを格納するためのリスト
+    k_mat_list = [] # 要素剛性マトリクスを格納するためのリスト
     for i in range(n_elem):
         S = get_elem_area(nodes, elems[i+1])      # 要素の面積
         B_mat = B_matrix(nodes, elems[i+1])       # B_matrix
         D_mat = D_matrix(E, POISSON)              # D_matrix
-        k_elem_mat = k_elem_matrix(B_mat, D_mat, S, T) # 要素剛性マトリクス
-        k_elem_mat_list.append(k_elem_mat)
+        k_mat = k_elem_matrix(B_mat, D_mat, S, T) # 要素剛性マトリクス
+        k_mat_list.append(k_mat)
     
     # 全体剛性マトリクスを求める
     if load_k:
         K = np.load("K_mat.npy")
     else:
-        K = K_matrix(np.stack(k_elem_mat_list), n_node, n_elem, nodes, elems)
+        K = K_matrix(np.stack(k_mat_list), n_node, n_elem, nodes, elems)
         if save_k:
             np.save("K_mat", K)
 
@@ -254,7 +254,7 @@ if __name__ == "__main__":
     f = f.reshape((f.shape[0], 1))
 
     # 境界条件を設定
-    K = set_dirichlet_boundary(K, fixed_x=FIXED_X)
+    K = set_dirichlet_boundary(K, FIXED_X, nodes)
     
     # 変位を求める
     if load_u:
