@@ -8,7 +8,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from config import *
-from Data import Data
+from data import Data
 from neural_network import MiddleLayer, OutputLayer, NeuralNetwork
 
 # 文字を画像表示

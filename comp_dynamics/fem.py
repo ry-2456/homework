@@ -214,7 +214,7 @@ def save_result(elems, x_coords, y_coords, colors, f_name):
         # x, yから座標を取り出す
         ax.plot(x[triangle_idx-1], y[triangle_idx-1], color=color, lw=0.2)
 
-    fig.savefig("{}".format(f_name))
+    fig.savefig(f_name)
 
 
 if __name__ == "__main__":
