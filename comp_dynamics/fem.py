@@ -34,13 +34,13 @@ def read_fem_data(file_name):
 
     return (node_n, elem_n, nodes, elems)    
 
-# 処理の始まりにmsgを終わりにdoneを表示するdecorator
-def progress_msg(msg):
+# 処理の始まりにmsgを終了時にe_msgを表示するdecorator
+def progress_msg(s_msg, e_msg):
     def decorator(f):
         def wrapper(*args):
-            print(msg, end="", flush=True)
+            print(s_msg, end="", flush=True)
             result =  f(*args)
-            print("done")
+            print(e_msg)
             return result
         return wrapper
     return decorator
@@ -114,7 +114,7 @@ def k_elem_matrix(B, D, S, t):
     k = S * t * B.T.dot(D).dot(B)
     return k
 
-@progress_msg("calculating K matrix...")
+@progress_msg("calculating K matrix...", "done")
 def K_matrix(k, n_node, n_elem, nodes, elems):
     """
     全体剛性マトリクスを返す
@@ -159,7 +159,7 @@ def force_vector(nodes, n_node, load_x, f_x, f_y):
     # 力を格納する用
     f = np.zeros(n_node*2)
 
-    # 荷重点の節点番号を取得(1~)
+    # 荷重点の節点番号を取得(idxは1はじまり)
     load_idx = np.where(nodes[:, 0]==load_x)[0]
 
     for i in (load_idx-1):  # 0~6843-1
@@ -176,17 +176,17 @@ def set_dirichlet_boundary(K, fixed_x, nodes):
     fixed_x : 固定端のx座標
     nodes   : 全節点(1行目はダミー)
     """
-    # 固定端の節点番号
+    # 固定端の節点番号(idxは1はじまり)
     fixed_idx = np.where(nodes[:, 0]==fixed_x)[0]
-    for i in fixed_idx:
-        j = 2*(i-1)
+    for i in (fixed_idx-1): # idxを0始まりにする
+        j = 2*i
         K[j:j+2, :] = 0        # 行(xy)
         K[:, j:j+2] = 0        # 列(xy)
         K[[j,j+1], [j,j+1]] = 1
     
     return K
 
-@progress_msg("solving...")
+@progress_msg("solving...", "done")
 def solve(K, force):
     u = np.linalg.solve(K, force)
     return u
